@@ -5,78 +5,56 @@ $(document).ready(function () {
 
     loadCity();
     getLocation();
-    
+
     $("#searchbtn").on("click", function () {
-        $("#earthforecast").empty();
         var inputValue = $("#searchinput").val();
         setcityName(inputValue);
-        console.log(inputValue);
-        var queryParam = url + inputValue + "&appid=" + apiKey;
+        loadWeather(inputValue);
+    })
+
+
+    function loadWeather(city) {
+        $("#earthforecast").empty();
+        var queryParam = url + city + "&appid=" + apiKey;
         $.ajax({
             url: queryParam,
             method: "GET"
 
         }).then(function (response) {
             console.log(response);
-
-            var currentCard = $("<div>");
-            currentCard.attr("class", "card bg-light");
-            $("#earthforecast").append(currentCard);
-            var currentCardHeader = $("<div>");
-            currentCardHeader.attr("class", "card-header");
             var currdate = moment(response.dt, "X").format("MM/DD/YYYY");
-            currentCardHeader.text(`${response.name} ( ${currdate} )`);
-            currentCard.append(currentCardHeader);
-            console.log(currentCard);
-            var cardBody = $("<div>");
-            cardBody.attr("class", "card-body");
-            currentCard.append(cardBody);
-            var temp = $("<p>");
-            temp.attr("class", "card-text");
-            temp.html("Temperature: " + response.main.temp + " &#8457;");
-            cardBody.append(temp);
-
-            var humidity = $("<p>");
-            humidity.attr("class", "card-text");
-            humidity.text("Humidity: " + response.main.humidity + "%");
-            cardBody.append(humidity);
-
-
-            var windSpeed = $("<p>");
-            windSpeed.attr("class", "card-text");
-            windSpeed.text("Wind Speed: " + response.wind.speed + " MPH");
-            cardBody.append(windSpeed);
-            currentCard.append(cardBody);
-            var uvURL = "https://api.openweathermap.org/data/2.5/uvi?appid=" + apiKey + "&lat=" + response.coord.lat + "&lon=" + response.coord.lat;
-            $.ajax({
-                url: uvURL,
-                method: "GET"
-            }).then(function (response) {
-                var uvindex = response.value;
-                var bgcolor;
-                if (uvindex <= 3) {
-                    bgcolor = "green";
-                } else if (uvindex >= 3 || uvindex <= 6) {
-                    bgcolor = "yellow";
-                } else if (uvindex >= 6 || uvindex <= 8) {
-                    bgcolor = "orange";
-                } else {
-                    bgcolor = "red";
-                }
-                var uvdisp = $("<p>");
-                uvdisp.attr("class", "card-text")
-                uvdisp.text("UV Index: ");
-                uvdisp.append($("<span>").attr("class", "uvindex").attr("style", ("background-color:" + bgcolor)).text(uvindex));
-                cardBody.append(uvdisp);
-            })
-
-            currentCard.append(cardBody);
+            $("#currentCardHeader").html(`${response.name} ( ${currdate} ) <img id="weatherIcon" src='https://openweathermap.org/img/wn/${response.weather[0].icon}@2x.png' width="50px" height="50px"">`);
+            $("#temperature").html(`Temperature: ${response.main.temp} &#8457;`);
+            $("#humidity").text(`Humidity: ${response.main.humidity} %`);
+            $("#windSpeed").text(`Wind Speed: ${response.wind.speed} MPH`);
+            getUvIndex(response);
             getFiveDayForcast(response.id);
 
         })
+    }
 
-    })
-    //weather forcast for 5 days
+    function getUvIndex(response) {
+        var uvURL = "https://api.openweathermap.org/data/2.5/uvi?appid=" + apiKey + "&lat=" + response.coord.lat + "&lon=" + response.coord.lat;
+        $.ajax({
+            url: uvURL,
+            method: "GET"
+        }).then(function (response) {
+            var uvindex = response.value;
+            var bgcolor;
+            if (uvindex <= 3) {
+                bgcolor = "green";
+            } else if (uvindex >= 3 || uvindex <= 6) {
+                bgcolor = "yellow";
+            } else if (uvindex >= 6 || uvindex <= 8) {
+                bgcolor = "orange";
+            } else {
+                bgcolor = "red";
+            }
+            var uvdisp = $("#uvIndex");
+            uvdisp.text("UV Index: ");
+            uvdisp.append($("<span>").attr("class", "uvindex").attr("style", ("background-color:" + bgcolor)).text(uvindex));
+        })
+    }
 
     function getFiveDayForcast(cityId) {
         console.log(cityId);
@@ -145,7 +123,6 @@ $(document).ready(function () {
 
     var urlForGeo = "https://maps.googleapis.com/maps/api/geocode/json?latlng=";
     var apiKeyforgeo = "AIzaSyBhaOB_RxMMOdHuGg6tAQH4sQDrtcNxGK8";
-
     function getLocation() {
         if (navigator.geolocation) {
             console.log("true");
@@ -158,9 +135,10 @@ $(document).ready(function () {
                 }).then(function (response) {
                     var current_location = response.results[0].formatted_address;
                     $("#current_location").text(current_location);
+                    loadWeather(response.results[8].address_components[0].long_name);
                 })
             })
         }
     }
-   
+
 })

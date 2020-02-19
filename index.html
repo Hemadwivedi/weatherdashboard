@@ -40,8 +40,19 @@
                 </div>
             </div>
             <div class="col-md-9">
-                <div class="container" id="earthforecast">
-                    <h1 class="currentday"></h1>
+                <div class="card">
+                    <div class="card-body">
+                        <div>
+                            <h4 class="card-title" id="currentCardHeader"></h4>
+                        </div>
+                        <p class="card-text" id="temperature"></p>
+                        <p class="card-text" id="humidity"></p>
+                        <p class="card-text" id="windSpeed"></p>
+                        <p class="card-text" id="uvIndex"></p>
+                    </div>
+                </div>
+                <div id="earthforecast">
+
                 </div>
             </div>
         </div>
@@ -50,12 +61,12 @@
     <footer id="main-footer" class="text-center fixed-bottom footer bg-dark">
         <div class="container">
             <div class="row">
-              <div class="col">
-                <p id="current_location" class="text-light"></p>
-              </div>
+                <div class="col">
+                    <p id="current_location" class="text-light"></p>
+                </div>
             </div>
-          </div>
-      </footer>
+        </div>
+    </footer>
     <script src="https://code.jquery.com/jquery-3.4.1.min.js"
         integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo=" crossorigin="anonymous"></script>
     <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js"
