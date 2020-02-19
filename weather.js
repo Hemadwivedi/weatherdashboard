@@ -3,16 +3,9 @@ $(document).ready(function () {
     var url = "http://api.openweathermap.org/data/2.5/weather?q=";
     var urlFor5Days = "https://api.openweathermap.org/data/2.5/forecast?id="
 
-    function currentDay() {
-
-        var now = moment();
-        var currentDay = $(".currentday").text(now.format("dddd, MMMM Do YYYY, h:mm a"));
-        console.log(currentDay);
-        var hours = now.hour();
-
-    }
-    currentDay();
     loadCity();
+    getLocation();
+    
     $("#searchbtn").on("click", function () {
         $("#earthforecast").empty();
         var inputValue = $("#searchinput").val();
@@ -31,15 +24,10 @@ $(document).ready(function () {
             $("#earthforecast").append(currentCard);
             var currentCardHeader = $("<div>");
             currentCardHeader.attr("class", "card-header");
-            currentCardHeader.text(response.name);
+            var currdate = moment(response.dt, "X").format("MM/DD/YYYY");
+            currentCardHeader.text(`${response.name} ( ${currdate} )`);
             currentCard.append(currentCardHeader);
             console.log(currentCard);
-            var currdate = moment(response.dt, "X").format("dddd, MMMM Do YYYY, h:mm a");
-            var currentdatestorage = $("<p>");
-            currentdatestorage.attr("class", "card-text");
-            currentdatestorage.text(currdate);
-            console.log(currentdatestorage);
-            currentCard.append(currentdatestorage);
             var cardBody = $("<div>");
             cardBody.attr("class", "card-body");
             currentCard.append(cardBody);
@@ -155,11 +143,24 @@ $(document).ready(function () {
         }
     }
 
+    var urlForGeo = "https://maps.googleapis.com/maps/api/geocode/json?latlng=";
+    var apiKeyforgeo = "AIzaSyBhaOB_RxMMOdHuGg6tAQH4sQDrtcNxGK8";
 
-
-
-
+    function getLocation() {
+        if (navigator.geolocation) {
+            console.log("true");
+            navigator.geolocation.getCurrentPosition(function (position) {
+                console.log("location available");
+                console.log(position.coords.latitude + "," + position.coords.longitude);
+                $.ajax({
+                    url: urlForGeo + position.coords.latitude + "," + position.coords.longitude + "&key=" + apiKeyforgeo,
+                    method: "GET"
+                }).then(function (response) {
+                    var current_location = response.results[0].formatted_address;
+                    $("#current_location").text(current_location);
+                })
+            })
+        }
+    }
+   
 })
-//https://api.openweathermap.org/data/2.5/forecast?id=1269633&APPID=309a0a427f8e7089b2ced2948e65e0de&units=imperial
-//https://openweathermap.org/img/wn/01n@2x.png
-//moment(response.list[i].dt,"X"
